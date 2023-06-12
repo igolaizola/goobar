@@ -79,20 +79,21 @@ func newVersionCommand() *ffcli.Command {
 }
 
 func newServeCommand() *ffcli.Command {
-	fs := flag.NewFlagSet("serve", flag.ExitOnError)
+	cmd := "serve"
+	fs := flag.NewFlagSet(cmd, flag.ExitOnError)
 	_ = fs.String("config", "", "config file (optional)")
 
 	port := fs.Int("port", 0, "port number")
 
 	return &ffcli.Command{
-		Name:       "serve",
-		ShortUsage: "goobar serve [flags] <key> <value data...>",
+		Name:       cmd,
+		ShortUsage: fmt.Sprintf("goobar %s [flags] <key> <value data...>", cmd),
 		Options: []ff.Option{
 			ff.WithConfigFileFlag("config"),
 			ff.WithConfigFileParser(ff.PlainParser),
 			ff.WithEnvVarPrefix("GOOBAR"),
 		},
-		ShortHelp: "run goobar server",
+		ShortHelp: fmt.Sprintf("goobar %s command", cmd),
 		FlagSet:   fs,
 		Exec: func(ctx context.Context, args []string) error {
 			if *port == 0 {
@@ -104,18 +105,19 @@ func newServeCommand() *ffcli.Command {
 }
 
 func newRunCommand() *ffcli.Command {
-	fs := flag.NewFlagSet("run", flag.ExitOnError)
+	cmd := "run"
+	fs := flag.NewFlagSet(cmd, flag.ExitOnError)
 	_ = fs.String("config", "", "config file (optional)")
 
 	return &ffcli.Command{
-		Name:       "run",
-		ShortUsage: "goobar serve [flags] <key> <value data...>",
+		Name:       cmd,
+		ShortUsage: fmt.Sprintf("goobar %s [flags] <key> <value data...>", cmd),
 		Options: []ff.Option{
 			ff.WithConfigFileFlag("config"),
 			ff.WithConfigFileParser(ff.PlainParser),
 			ff.WithEnvVarPrefix("GOOBAR"),
 		},
-		ShortHelp: "run goobar action",
+		ShortHelp: fmt.Sprintf("goobar %s command", cmd),
 		FlagSet:   fs,
 		Exec: func(ctx context.Context, args []string) error {
 			return goobar.Run(ctx)
