@@ -48,6 +48,7 @@ app-build:
 # Example: PLATFORMS=linux/amd64 make docker-build
 .PHONY: docker-build
 docker-build:
+	rm -rf bin; \
 	@platforms=($(PLATFORMS)); \
 	platform=$${platforms[0]}; \
 	if [[ $${#platforms[@]} -ne 1 ]]; then \
