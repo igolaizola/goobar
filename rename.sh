@@ -28,6 +28,9 @@ find . -type f -exec sed -i "s/goobar/$name_low/g" {} \;
 find . -type f -exec sed -i "s/GOOBAR/$name_upp/g" {} \;
 find . -type f -exec sed -i "s/igolaizola/$owner/g" {} \;
 
+# Override README.md
+echo "# $name" > README.md
+
 # Remove this script folder
 rm -rf rename.sh
 
