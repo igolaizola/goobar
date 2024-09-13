@@ -1,12 +1,11 @@
 #!/bin/bash
 
 SHELL             = /bin/bash
-PLATFORMS        ?= linux/amd64 darwin/amd64 windows/amd64
+PLATFORMS        ?= linux/amd64 darwin/amd64 darwin/arm64 windows/amd64
 IMAGE_PREFIX     ?= igolaizola
-REPO_NAME		 ?= goobar
+REPO_NAME        ?= goobar
 COMMIT_SHORT     ?= $(shell git rev-parse --verify --short HEAD)
-VERSION          ?= $(COMMIT_SHORT)
-VERSION_NOPREFIX ?= $(shell echo $(VERSION) | sed -e 's/^[[v]]*//')
+VERSION          ?= $(shell git describe --tags --exact-match 2>/dev/null || echo $(COMMIT_SHORT))
 
 # Build the binaries for the current platform
 .PHONY: build
@@ -28,13 +27,14 @@ app-build:
 		if [ "$$os" == "windows" ]; then \
 			ext=".exe"; \
 		fi; \
-		file=./bin/$(REPO_NAME)-$(VERSION_NOPREFIX)-$$(echo $$platform | tr / -)$$ext; \
+		file=./bin/$(REPO_NAME)-$(COMMIT_SHORT)-$$(echo $$platform | tr / -)$$ext; \
 		GOOS=$$os GOARCH=$$arch GOARM=$$arm CGO_ENABLED=0 \
 		go build \
 			-a -x -tags netgo,timetzdata -installsuffix cgo -installsuffix netgo \
 			-ldflags " \
-				-X main.Version=$(VERSION_NOPREFIX) \
-				-X main.GitRev=$(COMMIT_SHORT) \
+				-X main.version=$(VERSION) \
+				-X main.commit=$(COMMIT_SHORT) \
+				-X main.date=$(shell date -u +'%Y-%m-%dT%H:%M:%SZ') \
 			" \
 			-o $$file \
 			./cmd/$(REPO_NAME); \
@@ -55,7 +55,7 @@ docker-build:
     	echo "Multi-arch build not supported"; \
 		exit 1; \
 	fi; \
-	docker build --platform $$platform -t $(IMAGE_PREFIX)/$(REPO_NAME):$(VERSION) .; \
+	docker build --platform $$platform -t $(IMAGE_PREFIX)/$(REPO_NAME):$(COMMIT_SHORT) .; \
 	if [ $$? -ne 0 ]; then \
 		exit 1; \
 	fi
@@ -66,9 +66,17 @@ docker-build:
 docker-buildx:
 	@platforms=($(PLATFORMS)); \
 	platform=$$(IFS=, ; echo "$${platforms[*]}"); \
-	docker buildx build --platform $$platform -t $(IMAGE_PREFIX)/$(REPO_NAME):$(VERSION) .
+	docker buildx build --platform $$platform -t $(IMAGE_PREFIX)/$(REPO_NAME):$(COMMIT_SHORT) .
 
 # Clean binaries
 .PHONY: clean
 clean:
-	rm -rf bin
+	rm -rf bin/README.*
+	rm -rf bin/$(REPO_NAME)-*
+
+# Zip the binaries
+.PHONY: zip
+zip: clean build
+	cp README.pdf bin/; \
+	cd bin; \
+	zip -r $(REPO_NAME)-$(shell date -u +'%Y%m%d-%H%M').zip README.pdf $(REPO_NAME)-*; \

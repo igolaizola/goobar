@@ -19,3 +19,5 @@ bin
 .history
 .vscode
 *.conf
+*.yaml
+README.pdf

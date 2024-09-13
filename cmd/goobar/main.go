@@ -14,6 +14,7 @@ import (
 	"github.com/igolaizola/goobar"
 	"github.com/peterbourgon/ff/v3"
 	"github.com/peterbourgon/ff/v3/ffcli"
+	"github.com/peterbourgon/ff/v3/ffyaml"
 )
 
 // Build flags
@@ -90,7 +91,7 @@ func newServeCommand() *ffcli.Command {
 		ShortUsage: fmt.Sprintf("goobar %s [flags] <key> <value data...>", cmd),
 		Options: []ff.Option{
 			ff.WithConfigFileFlag("config"),
-			ff.WithConfigFileParser(ff.PlainParser),
+			ff.WithConfigFileParser(ffyaml.Parser),
 			ff.WithEnvVarPrefix("GOOBAR"),
 		},
 		ShortHelp: fmt.Sprintf("goobar %s command", cmd),
@@ -114,7 +115,7 @@ func newRunCommand() *ffcli.Command {
 		ShortUsage: fmt.Sprintf("goobar %s [flags] <key> <value data...>", cmd),
 		Options: []ff.Option{
 			ff.WithConfigFileFlag("config"),
-			ff.WithConfigFileParser(ff.PlainParser),
+			ff.WithConfigFileParser(ffyaml.Parser),
 			ff.WithEnvVarPrefix("GOOBAR"),
 		},
 		ShortHelp: fmt.Sprintf("goobar %s command", cmd),
